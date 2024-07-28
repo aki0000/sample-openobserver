@@ -1,0 +1,28 @@
+---
+services:
+  o2:
+    image: public.ecr.aws/zinclabs/openobserve:latest
+    ports:
+      - 5080:5080
+    volumes:
+      - ./data:/data
+    environment:
+      - ZO_DATA_DIR=/data
+      - ZO_ROOT_USER_EMAIL=sample@example.com
+      - ZO_ROOT_USER_PASSWORD=sample123
+    networks:
+      - o2-network
+
+  otel:
+    build:
+      context: ./otel/
+      dockerfile: dockerfile
+    volumes:
+      - ./otel/config.yml:/etc/config.yml
+      - ./sample.log:/tmp/sample.log
+    networks:
+      - o2-network
+
+networks:
+  o2-network:
+    driver: bridge
