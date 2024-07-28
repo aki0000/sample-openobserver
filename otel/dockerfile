@@ -1,0 +1,16 @@
+FROM golang:1.23rc2 as build
+
+WORKDIR /app
+
+COPY . .
+
+RUN go install go.opentelemetry.io/collector/cmd/builder@v0.105.0 && \
+    builder --config=otelcol-recipe.yml --name=otelcol-custom --output-path=.
+
+FROM quay.io/centos/centos:stream9-minimal
+
+WORKDIR /app
+
+COPY --from=build /app/otelcol-custom /app/
+
+CMD ["/app/otelcol-custom", "--config=/etc/config.yml"]
