@@ -1,0 +1,32 @@
+---
+receivers:
+  # hostmetrics:
+  #   collection_interval: 10s
+  #   scrapers:
+  #     cpu:
+  filelog:
+    include: [/tmp/sample.log]
+    operators:
+      - type: json_parser
+        timestamp:
+          parse_from: attributes.time
+          layout: '%Y-%m-%d %H:%M:%S'
+processors:
+exporters:
+  otlphttp/openobserve:
+    endpoint: "http://o2:5080/api/default"
+    headers:
+      Authorization: "Basic xxx"
+      stream-name: default
+  debug:
+    verbosity: detailed
+  logging:
+    verbosity: detailed
+service:
+  pipelines:
+    # metrics:
+    #   receivers: [hostmetrics]
+    #   exporters: [otlphttp, debug]
+    logs:
+      receivers: [filelog]
+      exporters: [otlphttp/openobserve, logging]
